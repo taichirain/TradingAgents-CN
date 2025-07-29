@@ -18,14 +18,8 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 # 导入日志模块
-try:
-    from tradingagents.utils.logging_manager import get_logger
-    logger = get_logger('web')
-except ImportError:
-    # 如果无法导入，使用标准logging
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger('web')
+from tradingagents.utils.logging_manager import get_logger
+logger = get_logger('web')
 
 # 加载环境变量
 load_dotenv(project_root / ".env", override=True)
@@ -36,7 +30,6 @@ from components.header import render_header
 from components.analysis_form import render_analysis_form
 from components.results_display import render_results
 from components.login import render_login_form, check_authentication, render_user_info, render_sidebar_user_info, render_sidebar_logout, require_permission
-from components.user_activity_dashboard import render_user_activity_dashboard, render_activity_summary_widget
 from utils.api_checker import check_api_keys
 from utils.analysis_runner import run_stock_analysis, validate_analysis_params, format_analysis_results
 from utils.progress_tracker import SmartStreamlitProgressDisplay, create_smart_progress_callback
@@ -44,7 +37,6 @@ from utils.async_progress_tracker import AsyncProgressTracker
 from components.async_progress_display import display_unified_progress
 from utils.smart_session_manager import get_persistent_analysis_id, set_persistent_analysis_id
 from utils.auth_manager import auth_manager
-from utils.user_activity_logger import user_activity_logger
 
 # 设置页面配置
 st.set_page_config(
@@ -597,31 +589,13 @@ def main():
     # 初始化会话状态
     initialize_session_state()
 
-    # 检查前端缓存恢复
-    check_frontend_auth_cache()
-
     # 检查用户认证状态
-    if not auth_manager.is_authenticated():
-        # 最后一次尝试从session state恢复认证状态
-        if (st.session_state.get('authenticated', False) and 
-            st.session_state.get('user_info') and 
-            st.session_state.get('login_time')):
-            logger.info("🔄 从session state恢复认证状态")
-            try:
-                auth_manager.login_user(
-                    st.session_state.user_info, 
-                    st.session_state.login_time
-                )
-                logger.info(f"✅ 成功从session state恢复用户 {st.session_state.user_info.get('username', 'Unknown')} 的认证状态")
-            except Exception as e:
-                logger.warning(f"⚠️ 从session state恢复认证状态失败: {e}")
-        
-        # 如果仍然未认证，显示登录页面
-        if not auth_manager.is_authenticated():
-            render_login_form()
-            return
+    if not check_authentication():
+        # 显示登录页面
+        render_login_form()
+        return
 
-    # 全局侧边栏CSS样式 - 确保所有页面一致
+    # 自定义CSS - 调整侧边栏宽度
     st.markdown("""
     <style>
     /* 统一侧边栏宽度为320px */
@@ -958,27 +932,12 @@ def main():
             st.error(f"Token统计页面加载失败: {e}")
             st.info("请确保已安装所有依赖包")
         return
-    elif page == "📋 操作日志":
-        # 检查管理员权限
-        if not require_permission("admin"):
-            return
-        try:
-            from components.operation_logs import render_operation_logs
-            render_operation_logs()
-        except ImportError as e:
-            st.error(f"操作日志模块加载失败: {e}")
-            st.info("请确保已安装所有依赖包")
-        return
-    elif page == "📈 分析结果":
+    elif page == "📈 历史记录":
         # 检查分析权限
         if not require_permission("analysis"):
             return
-        try:
-            from components.analysis_results import render_analysis_results
-            render_analysis_results()
-        except ImportError as e:
-            st.error(f"分析结果模块加载失败: {e}")
-            st.info("请确保已安装所有依赖包")
+        st.header("📈 历史记录")
+        st.info("历史记录功能开发中...")
         return
     elif page == "🔧 系统状态":
         # 检查管理员权限
