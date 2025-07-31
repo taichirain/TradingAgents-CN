@@ -106,18 +106,18 @@ class MongoDBReportManager:
         except Exception as e:
             logger.error(f"❌ MongoDB索引创建失败: {e}")
     
-    def save_analysis_report(self, stock_symbol: str, analysis_results: Dict[str, Any],
+    def save_analysis_report(self, stock_symbol: str, analysis_results: Dict[str, Any], 
                            reports: Dict[str, str]) -> bool:
         """保存分析报告到MongoDB"""
         if not self.connected:
             logger.warning("MongoDB未连接，跳过保存")
             return False
-
+        
         try:
             # 生成分析ID
             timestamp = datetime.now()
             analysis_id = f"{stock_symbol}_{timestamp.strftime('%Y%m%d_%H%M%S')}"
-
+            
             # 构建文档
             document = {
                 "analysis_id": analysis_id,
@@ -126,15 +126,15 @@ class MongoDBReportManager:
                 "timestamp": timestamp,
                 "status": "completed",
                 "source": "mongodb",
-
+                
                 # 分析结果摘要
                 "summary": analysis_results.get("summary", ""),
                 "analysts": analysis_results.get("analysts", []),
-                "research_depth": analysis_results.get("research_depth", 1),  # 修正：从分析结果中获取真实的研究深度
-
+                "research_depth": len(reports),
+                
                 # 报告内容
                 "reports": reports,
-
+                
                 # 元数据
                 "created_at": timestamp,
                 "updated_at": timestamp
@@ -180,23 +180,10 @@ class MongoDBReportManager:
             
             results = []
             for doc in cursor:
-                # 处理timestamp字段，兼容不同的数据类型
-                timestamp_value = doc.get("timestamp")
-                if hasattr(timestamp_value, 'timestamp'):
-                    # datetime对象
-                    timestamp = timestamp_value.timestamp()
-                elif isinstance(timestamp_value, (int, float)):
-                    # 已经是时间戳
-                    timestamp = float(timestamp_value)
-                else:
-                    # 其他情况，使用当前时间
-                    from datetime import datetime
-                    timestamp = datetime.now().timestamp()
-                
                 # 转换为Web应用期望的格式
                 result = {
                     "analysis_id": doc["analysis_id"],
-                    "timestamp": timestamp,
+                    "timestamp": doc["timestamp"].timestamp(),
                     "stock_symbol": doc["stock_symbol"],
                     "analysts": doc.get("analysts", []),
                     "research_depth": doc.get("research_depth", 0),
@@ -266,116 +253,6 @@ class MongoDBReportManager:
                 
         except Exception as e:
             logger.error(f"❌ 删除分析报告失败: {e}")
-            return False
-
-    def get_all_reports(self, limit: int = 1000) -> List[Dict[str, Any]]:
-        """获取所有分析报告"""
-        if not self.connected:
-            return []
-
-        try:
-            # 获取所有报告，按时间戳降序排列
-            cursor = self.collection.find().sort("timestamp", -1).limit(limit)
-            reports = list(cursor)
-
-            # 转换ObjectId为字符串
-            for report in reports:
-                if '_id' in report:
-                    report['_id'] = str(report['_id'])
-
-            logger.info(f"✅ 从MongoDB获取了 {len(reports)} 个分析报告")
-            return reports
-
-        except Exception as e:
-            logger.error(f"❌ 从MongoDB获取所有报告失败: {e}")
-            return []
-
-    def fix_inconsistent_reports(self) -> bool:
-        """修复不一致的报告数据结构"""
-        if not self.connected:
-            logger.warning("MongoDB未连接，跳过修复")
-            return False
-
-        try:
-            # 查找缺少reports字段或reports字段为空的文档
-            query = {
-                "$or": [
-                    {"reports": {"$exists": False}},
-                    {"reports": {}},
-                    {"reports": None}
-                ]
-            }
-
-            cursor = self.collection.find(query)
-            inconsistent_docs = list(cursor)
-
-            if not inconsistent_docs:
-                logger.info("✅ 所有报告数据结构一致，无需修复")
-                return True
-
-            logger.info(f"🔧 发现 {len(inconsistent_docs)} 个不一致的报告，开始修复...")
-
-            fixed_count = 0
-            for doc in inconsistent_docs:
-                try:
-                    # 为缺少reports字段的文档添加空的reports字段
-                    update_data = {
-                        "$set": {
-                            "reports": {},
-                            "updated_at": datetime.now()
-                        }
-                    }
-
-                    result = self.collection.update_one(
-                        {"_id": doc["_id"]},
-                        update_data
-                    )
-
-                    if result.modified_count > 0:
-                        fixed_count += 1
-                        logger.info(f"✅ 修复报告: {doc.get('analysis_id', 'unknown')}")
-
-                except Exception as e:
-                    logger.error(f"❌ 修复报告失败 {doc.get('analysis_id', 'unknown')}: {e}")
-
-            logger.info(f"✅ 修复完成，共修复 {fixed_count} 个报告")
-            return True
-
-        except Exception as e:
-            logger.error(f"❌ 修复不一致报告失败: {e}")
-            return False
-
-    def save_report(self, report_data: Dict[str, Any]) -> bool:
-        """保存报告数据（通用方法）"""
-        if not self.connected:
-            logger.warning("MongoDB未连接，跳过保存")
-            return False
-
-        try:
-            # 确保有必要的字段
-            if 'analysis_id' not in report_data:
-                logger.error("报告数据缺少analysis_id字段")
-                return False
-
-            # 添加保存时间戳
-            report_data['saved_at'] = datetime.now()
-
-            # 使用upsert操作，如果存在则更新，不存在则插入
-            result = self.collection.replace_one(
-                {"analysis_id": report_data['analysis_id']},
-                report_data,
-                upsert=True
-            )
-
-            if result.upserted_id or result.modified_count > 0:
-                logger.info(f"✅ 报告保存成功: {report_data['analysis_id']}")
-                return True
-            else:
-                logger.warning(f"⚠️ 报告保存无变化: {report_data['analysis_id']}")
-                return True
-
-        except Exception as e:
-            logger.error(f"❌ 保存报告到MongoDB失败: {e}")
             return False
 
 
