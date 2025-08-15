@@ -230,90 +230,32 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
     
     def __init__(
         self,
-        model: str = "ernie-3.5-8k",
+        model: str = "ERNIE-Speed-8K",
         api_key: Optional[str] = None,
         temperature: float = 0.1,
         max_tokens: Optional[int] = None,
         **kwargs
     ):
-        # 千帆新一代API使用单一API Key认证
-        # 格式: bce-v3/ALTAK-xxx/xxx
+        # 千帆需要同时使用ACCESS_KEY和SECRET_KEY进行认证
+        # 为了兼容OpenAI格式，我们将ACCESS_KEY作为api_key，SECRET_KEY通过环境变量获取
+        access_key = api_key or os.getenv('QIANFAN_ACCESS_KEY')
+        secret_key = os.getenv('QIANFAN_SECRET_KEY')
         
-        qianfan_api_key = api_key or os.getenv('QIANFAN_API_KEY')
-        
-        if not qianfan_api_key:
+        if not access_key or not secret_key:
             raise ValueError(
-                "千帆模型需要设置QIANFAN_API_KEY环境变量，格式为: bce-v3/ALTAK-xxx/xxx"
-            )
-        
-        if not qianfan_api_key.startswith('bce-v3/'):
-            raise ValueError(
-                "QIANFAN_API_KEY格式错误，应为: bce-v3/ALTAK-xxx/xxx"
+                "千帆模型需要设置QIANFAN_ACCESS_KEY和QIANFAN_SECRET_KEY环境变量"
             )
         
         super().__init__(
             provider_name="qianfan",
             model=model,
-            api_key_env_var="QIANFAN_API_KEY",
+            api_key_env_var="QIANFAN_ACCESS_KEY",
             base_url="https://qianfan.baidubce.com/v2",
-            api_key=qianfan_api_key,
+            api_key=access_key,
             temperature=temperature,
             max_tokens=max_tokens,
             **kwargs
         )
-    
-    def _estimate_tokens(self, text: str) -> int:
-        """估算文本的token数量（千帆模型专用）"""
-        # 千帆模型的token估算：中文约1.5字符/token，英文约4字符/token
-        # 保守估算：2字符/token
-        return max(1, len(text) // 2)
-    
-    def _truncate_messages(self, messages: List[BaseMessage], max_tokens: int = 4500) -> List[BaseMessage]:
-        """截断消息以适应千帆模型的token限制"""
-        # 为千帆模型预留一些token空间，使用4500而不是5120
-        truncated_messages = []
-        total_tokens = 0
-        
-        # 从最后一条消息开始，向前保留消息
-        for message in reversed(messages):
-            content = str(message.content) if hasattr(message, 'content') else str(message)
-            message_tokens = self._estimate_tokens(content)
-            
-            if total_tokens + message_tokens <= max_tokens:
-                truncated_messages.insert(0, message)
-                total_tokens += message_tokens
-            else:
-                # 如果是第一条消息且超长，进行内容截断
-                if not truncated_messages:
-                    remaining_tokens = max_tokens - 100  # 预留100个token
-                    max_chars = remaining_tokens * 2  # 2字符/token
-                    truncated_content = content[:max_chars] + "...(内容已截断)"
-                    
-                    # 创建截断后的消息
-                    if hasattr(message, 'content'):
-                        message.content = truncated_content
-                    truncated_messages.insert(0, message)
-                break
-        
-        if len(truncated_messages) < len(messages):
-            logger.warning(f"⚠️ 千帆模型输入过长，已截断 {len(messages) - len(truncated_messages)} 条消息")
-        
-        return truncated_messages
-    
-    def _generate(
-        self,
-        messages: List[BaseMessage],
-        stop: Optional[List[str]] = None,
-        run_manager: Optional[CallbackManagerForLLMRun] = None,
-        **kwargs: Any,
-    ) -> ChatResult:
-        """生成聊天响应，包含千帆模型的token截断逻辑"""
-        
-        # 对千帆模型进行输入token截断
-        truncated_messages = self._truncate_messages(messages)
-        
-        # 调用父类的_generate方法
-        return super()._generate(truncated_messages, stop, run_manager, **kwargs)
 
 
 class ChatCustomOpenAI(OpenAICompatibleBase):
@@ -381,12 +323,10 @@ OPENAI_COMPATIBLE_PROVIDERS = {
     "qianfan": {
         "adapter_class": ChatQianfanOpenAI,
         "base_url": "https://qianfan.baidubce.com/v2",
-        "api_key_env": "QIANFAN_API_KEY",
+        "api_key_env": "QIANFAN_ACCESS_KEY",
         "models": {
-            "ernie-3.5-8k": {"context_length": 5120, "supports_function_calling": True},
-            "ernie-4.0-turbo-8k": {"context_length": 5120, "supports_function_calling": True},
-            "ERNIE-Speed-8K": {"context_length": 5120, "supports_function_calling": True},
-            "ERNIE-Lite-8K": {"context_length": 5120, "supports_function_calling": True}
+            "ERNIE-Speed-8K": {"context_length": 8192, "supports_function_calling": True},
+            "ERNIE-Lite-8K": {"context_length": 8192, "supports_function_calling": True}
         }
     },
     "custom_openai": {
@@ -465,6 +405,15 @@ def test_openai_compatible_adapters():
         except Exception as e:
             logger.warning(f"⚠️ 适配器实例化失败（预期或可忽略）: {provider} - {e}")
 
+
+# NOTE FOR CONTRIBUTORS:
+# To add a new OpenAI-compatible provider, follow these steps:
+# 1) Create an adapter class by subclassing OpenAICompatibleBase (see ChatDeepSeekOpenAI/ChatDashScopeOpenAIUnified for examples)
+# 2) Register the provider in OPENAI_COMPATIBLE_PROVIDERS with keys: adapter_class, base_url (if needed), api_key_env, and optional model metadata
+# 3) Ensure the required API key environment variable is documented in docs/LLM_INTEGRATION_GUIDE.md and added to `.env.example`
+# 4) If the provider requires a non-standard base_url, pass it via constructor or provider registry
+# 5) Run the provided tests in this file (test_* functions) or add a similar smoke test for your provider
+# Security: NEVER log raw API keys. Keep logging to high-level info only.
 
 if __name__ == "__main__":
     test_openai_compatible_adapters()
