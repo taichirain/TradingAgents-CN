@@ -842,54 +842,6 @@ def save_modular_reports_to_results_dir(results: Dict[str, Any], stock_symbol: s
         else:
             logger.warning(f"⚠️ MongoDB保存跳过 - AVAILABLE: {MONGODB_REPORT_AVAILABLE}, Manager: {mongodb_report_manager is not None}")
 
-        # 同时保存到MongoDB
-        logger.info(f"🔍 [MongoDB调试] 开始MongoDB保存流程")
-        logger.info(f"🔍 [MongoDB调试] MONGODB_REPORT_AVAILABLE: {MONGODB_REPORT_AVAILABLE}")
-        logger.info(f"🔍 [MongoDB调试] mongodb_report_manager存在: {mongodb_report_manager is not None}")
-
-        if MONGODB_REPORT_AVAILABLE and mongodb_report_manager:
-            logger.info(f"🔍 [MongoDB调试] MongoDB管理器连接状态: {mongodb_report_manager.connected}")
-            try:
-                # 收集所有报告内容
-                reports_content = {}
-
-                logger.info(f"🔍 [MongoDB调试] 开始读取 {len(saved_files)} 个报告文件")
-                # 读取已保存的文件内容
-                for module_key, file_path in saved_files.items():
-                    try:
-                        with open(file_path, 'r', encoding='utf-8') as f:
-                            content = f.read()
-                            reports_content[module_key] = content
-                            logger.info(f"🔍 [MongoDB调试] 成功读取 {module_key}: {len(content)} 字符")
-                    except Exception as e:
-                        logger.warning(f"⚠️ 读取报告文件失败 {file_path}: {e}")
-
-                # 保存到MongoDB
-                if reports_content:
-                    logger.info(f"🔍 [MongoDB调试] 准备保存到MongoDB，报告数量: {len(reports_content)}")
-                    logger.info(f"🔍 [MongoDB调试] 报告类型: {list(reports_content.keys())}")
-
-                    success = mongodb_report_manager.save_analysis_report(
-                        stock_symbol=stock_symbol,
-                        analysis_results=results,
-                        reports=reports_content
-                    )
-
-                    if success:
-                        logger.info(f"✅ 分析报告已同时保存到MongoDB")
-                    else:
-                        logger.warning(f"⚠️ MongoDB保存失败，但文件保存成功")
-                else:
-                    logger.warning(f"⚠️ 没有报告内容可保存到MongoDB")
-
-            except Exception as e:
-                logger.error(f"❌ MongoDB保存过程出错: {e}")
-                import traceback
-                logger.error(f"❌ MongoDB保存详细错误: {traceback.format_exc()}")
-                # 不影响文件保存的成功返回
-        else:
-            logger.warning(f"⚠️ MongoDB保存跳过 - AVAILABLE: {MONGODB_REPORT_AVAILABLE}, Manager: {mongodb_report_manager is not None}")
-
         return saved_files
 
     except Exception as e:
