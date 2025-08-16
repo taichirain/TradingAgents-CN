@@ -230,28 +230,33 @@ class ChatQianfanOpenAI(OpenAICompatibleBase):
     
     def __init__(
         self,
-        model: str = "ERNIE-Speed-8K",
+        model: str = "ernie-3.5-8k",
         api_key: Optional[str] = None,
         temperature: float = 0.1,
         max_tokens: Optional[int] = None,
         **kwargs
     ):
-        # 千帆需要同时使用ACCESS_KEY和SECRET_KEY进行认证
-        # 为了兼容OpenAI格式，我们将ACCESS_KEY作为api_key，SECRET_KEY通过环境变量获取
-        access_key = api_key or os.getenv('QIANFAN_ACCESS_KEY')
-        secret_key = os.getenv('QIANFAN_SECRET_KEY')
+        # 千帆新一代API使用单一API Key认证
+        # 格式: bce-v3/ALTAK-xxx/xxx
         
-        if not access_key or not secret_key:
+        qianfan_api_key = api_key or os.getenv('QIANFAN_API_KEY')
+        
+        if not qianfan_api_key:
             raise ValueError(
-                "千帆模型需要设置QIANFAN_ACCESS_KEY和QIANFAN_SECRET_KEY环境变量"
+                "千帆模型需要设置QIANFAN_API_KEY环境变量，格式为: bce-v3/ALTAK-xxx/xxx"
+            )
+        
+        if not qianfan_api_key.startswith('bce-v3/'):
+            raise ValueError(
+                "QIANFAN_API_KEY格式错误，应为: bce-v3/ALTAK-xxx/xxx"
             )
         
         super().__init__(
             provider_name="qianfan",
             model=model,
-            api_key_env_var="QIANFAN_ACCESS_KEY",
+            api_key_env_var="QIANFAN_API_KEY",
             base_url="https://qianfan.baidubce.com/v2",
-            api_key=access_key,
+            api_key=qianfan_api_key,
             temperature=temperature,
             max_tokens=max_tokens,
             **kwargs
@@ -323,8 +328,10 @@ OPENAI_COMPATIBLE_PROVIDERS = {
     "qianfan": {
         "adapter_class": ChatQianfanOpenAI,
         "base_url": "https://qianfan.baidubce.com/v2",
-        "api_key_env": "QIANFAN_ACCESS_KEY",
+        "api_key_env": "QIANFAN_API_KEY",
         "models": {
+            "ernie-3.5-8k": {"context_length": 8192, "supports_function_calling": True},
+            "ernie-4.0-turbo-8k": {"context_length": 8192, "supports_function_calling": True},
             "ERNIE-Speed-8K": {"context_length": 8192, "supports_function_calling": True},
             "ERNIE-Lite-8K": {"context_length": 8192, "supports_function_calling": True}
         }
@@ -405,15 +412,6 @@ def test_openai_compatible_adapters():
         except Exception as e:
             logger.warning(f"⚠️ 适配器实例化失败（预期或可忽略）: {provider} - {e}")
 
-
-# NOTE FOR CONTRIBUTORS:
-# To add a new OpenAI-compatible provider, follow these steps:
-# 1) Create an adapter class by subclassing OpenAICompatibleBase (see ChatDeepSeekOpenAI/ChatDashScopeOpenAIUnified for examples)
-# 2) Register the provider in OPENAI_COMPATIBLE_PROVIDERS with keys: adapter_class, base_url (if needed), api_key_env, and optional model metadata
-# 3) Ensure the required API key environment variable is documented in docs/LLM_INTEGRATION_GUIDE.md and added to `.env.example`
-# 4) If the provider requires a non-standard base_url, pass it via constructor or provider registry
-# 5) Run the provided tests in this file (test_* functions) or add a similar smoke test for your provider
-# Security: NEVER log raw API keys. Keep logging to high-level info only.
 
 if __name__ == "__main__":
     test_openai_compatible_adapters()
