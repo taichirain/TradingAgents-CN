@@ -10,6 +10,7 @@ logger = get_logger("default")
 
 class Reflector:
     """Handles reflection on decisions and updating memory."""
+    """处理对决策的反思和更新内存."""
 
     def __init__(self, quick_thinking_llm: ChatOpenAI):
         """Initialize the reflector with an LLM."""

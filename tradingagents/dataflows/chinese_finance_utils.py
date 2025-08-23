@@ -113,7 +113,7 @@ class ChineseFinanceDataAggregator:
         """获取股票论坛讨论情绪 (模拟数据，实际需要爬虫)"""
         # 由于东方财富股吧等平台的反爬虫机制，这里返回模拟数据
         # 实际实现需要更复杂的爬虫技术
-        
+        # TODO: 添加股票论坛数据获取逻辑
         return {
             'sentiment_score': 0,
             'discussion_count': 0,
@@ -171,6 +171,7 @@ class ChineseFinanceDataAggregator:
     
     def _analyze_text_sentiment(self, text: str) -> float:
         """简单的中文文本情绪分析"""
+        # TODO： 可以用大模型或者专用的情绪分析工具
         if not text:
             return 0
         

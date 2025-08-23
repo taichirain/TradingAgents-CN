@@ -9,6 +9,7 @@ logger = get_logger("default")
 
 class ConditionalLogic:
     """Handles conditional logic for determining graph flow."""
+    """处理用于确定图流的条件逻辑."""
 
     def __init__(self, max_debate_rounds=1, max_risk_discuss_rounds=1):
         """Initialize with configuration parameters."""

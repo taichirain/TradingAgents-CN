@@ -10,6 +10,7 @@ logger = get_logger("graph.signal_processing")
 
 class SignalProcessor:
     """Processes trading signals to extract actionable decisions."""
+    """处理交易信号以提取可操作的决策"""
 
     def __init__(self, quick_thinking_llm: ChatOpenAI):
         """Initialize with an LLM for processing."""

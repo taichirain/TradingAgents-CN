@@ -261,9 +261,9 @@ class TradingAgentsGraph:
             getattr(self, 'react_llm', None),
         )
 
-        self.propagator = Propagator()
-        self.reflector = Reflector(self.quick_thinking_llm)
-        self.signal_processor = SignalProcessor(self.quick_thinking_llm)
+        self.propagator = Propagator() # TODO：传播是做什么的？ 
+        self.reflector = Reflector(self.quick_thinking_llm) # TODO： 反思？
+        self.signal_processor = SignalProcessor(self.quick_thinking_llm) # TODO：信号处理？
 
         # State tracking
         self.curr_state = None
@@ -275,6 +275,7 @@ class TradingAgentsGraph:
 
     def _create_tool_nodes(self) -> Dict[str, ToolNode]:
         """Create tool nodes for different data sources."""
+        """为不同的数据源创建工具节点."""
         return {
             "market": ToolNode(
                 [
@@ -322,7 +323,7 @@ class TradingAgentsGraph:
 
     def propagate(self, company_name, trade_date):
         """Run the trading agents graph for a company on a specific date."""
-
+        """在特定日期运行公司的交易代理图."""
         # 添加详细的接收日志
         logger.debug(f"🔍 [GRAPH DEBUG] ===== TradingAgentsGraph.propagate 接收参数 =====")
         logger.debug(f"🔍 [GRAPH DEBUG] 接收到的company_name: '{company_name}' (类型: {type(company_name)})")
