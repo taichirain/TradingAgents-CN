@@ -1,3 +1,7 @@
+"""
+市场分析师
+"""
+
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import create_react_agent, AgentExecutor
 from langchain import hub
@@ -57,6 +61,7 @@ def _get_company_name(ticker: str, market_info: dict) -> str:
 
         elif market_info['is_us']:
             # 美股：使用简单映射或返回代码
+            # TODO 美股列表，最好写到配置文件里面，便于增减
             us_stock_names = {
                 'AAPL': '苹果公司',
                 'TSLA': '特斯拉',

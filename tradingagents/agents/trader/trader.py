@@ -1,3 +1,7 @@
+"""
+交易员节点
+"""
+
 import functools
 import time
 import json

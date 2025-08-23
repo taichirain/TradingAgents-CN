@@ -39,6 +39,7 @@ from .signal_processing import SignalProcessor
 
 class TradingAgentsGraph:
     """Main class that orchestrates the trading agents framework."""
+    """编排交易代理框架的主类."""
 
     def __init__(
         self,
@@ -53,6 +54,13 @@ class TradingAgentsGraph:
             debug: Whether to run in debug mode
             config: Configuration dictionary. If None, uses default config
         """
+        """初始化交易代理的图和组件.
+
+        参数:
+            已选择的分析师: 要包含的分析师类型列表
+            debug: 是否运行在debug模式
+            config: 配置字典. 如果为None，则使用默认配置
+        """
         self.debug = debug
         self.config = config or DEFAULT_CONFIG
 
@@ -66,6 +74,7 @@ class TradingAgentsGraph:
         )
 
         # Initialize LLMs
+        # 配置快思考模型和深度思考模型
         if self.config["llm_provider"].lower() == "openai":
             self.deep_thinking_llm = ChatOpenAI(model=self.config["deep_think_llm"], base_url=self.config["backend_url"])
             self.quick_thinking_llm = ChatOpenAI(model=self.config["quick_think_llm"], base_url=self.config["backend_url"])

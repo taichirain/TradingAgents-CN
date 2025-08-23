@@ -1,3 +1,7 @@
+"""
+中国市场分析师
+"""
+
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import time
 import json

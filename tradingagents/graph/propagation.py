@@ -14,6 +14,7 @@ from tradingagents.agents.utils.agent_states import (
 
 class Propagator:
     """Handles state initialization and propagation through the graph."""
+    """处理状态初始化和通过图进行传播."""
 
     def __init__(self, max_recur_limit=100):
         """Initialize with configuration parameters."""
@@ -23,6 +24,7 @@ class Propagator:
         self, company_name: str, trade_date: str
     ) -> Dict[str, Any]:
         """Create the initial state for the agent graph."""
+        """为代理图创建初始状态."""
         return {
             "messages": [("human", company_name)],
             "company_of_interest": company_name,
@@ -47,6 +49,7 @@ class Propagator:
 
     def get_graph_args(self) -> Dict[str, Any]:
         """Get arguments for the graph invocation."""
+        """获取图调用的参数."""
         return {
             "stream_mode": "values",
             "config": {"recursion_limit": self.max_recur_limit},

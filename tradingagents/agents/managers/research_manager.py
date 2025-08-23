@@ -1,3 +1,7 @@
+"""
+策略管理节点
+"""
+
 import time
 import json
 

@@ -8,10 +8,12 @@ from langgraph.graph import END, StateGraph, START, MessagesState
 
 # 导入统一日志系统
 from tradingagents.utils.logging_init import get_logger
+
 logger = get_logger("default")
 
 
 # Researcher team state
+# 研究院团队状态
 class InvestDebateState(TypedDict):
     bull_history: Annotated[
         str, "Bullish Conversation history"
@@ -26,6 +28,7 @@ class InvestDebateState(TypedDict):
 
 
 # Risk management team state
+# 风险管理团队状态
 class RiskDebateState(TypedDict):
     risky_history: Annotated[
         str, "Risky Agent's Conversation history"
@@ -51,6 +54,7 @@ class RiskDebateState(TypedDict):
     count: Annotated[int, "Length of the current conversation"]  # Conversation length
 
 
+# 代理状态
 class AgentState(MessagesState):
     company_of_interest: Annotated[str, "Company that we are interested in trading"]
     trade_date: Annotated[str, "What date we are trading at"]
