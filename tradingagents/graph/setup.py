@@ -64,7 +64,8 @@ class GraphSetup:
             raise ValueError("Trading Agents Graph Setup Error: no analysts selected!")
 
         # Create analyst nodes
-        analyst_nodes = {}
+        # 创建分析师节点
+        analyst_nodes = {} # 已选择分析师节点
         delete_nodes = {}
         tool_nodes = {}
 
@@ -85,6 +86,8 @@ class GraphSetup:
                 logger.debug(f"📈 [DEBUG] 使用标准市场分析师（阿里百炼原生模式）")
             elif "deepseek" in llm_provider:
                 logger.debug(f"📈 [DEBUG] 使用标准市场分析师（DeepSeek）")
+            elif "kimi" in llm_provider:
+                logger.debug(f"📈 [DEBUG] 使用标准市场分析师（Kimi）")
             else:
                 logger.debug(f"📈 [DEBUG] 使用标准市场分析师")
 
@@ -126,6 +129,9 @@ class GraphSetup:
                 logger.debug(f"📊 [DEBUG] 使用标准基本面分析师（阿里百炼原生模式）")
             elif "deepseek" in llm_provider:
                 logger.debug(f"📊 [DEBUG] 使用标准基本面分析师（DeepSeek）")
+            elif "kimi" in llm_provider:
+                # 新增 KIMI 大模型
+                logger.debug(f"📊 [DEBUG] 使用标准基本面分析师（Kimi）")
             else:
                 logger.debug(f"📊 [DEBUG] 使用标准基本面分析师")
 
@@ -178,6 +184,7 @@ class GraphSetup:
         workflow.add_node("Risk Judge", risk_manager_node)
 
         # Define edges
+        # 定义边
         # Start with the first analyst
         first_analyst = selected_analysts[0]
         workflow.add_edge(START, f"{first_analyst.capitalize()} Analyst")
@@ -189,6 +196,7 @@ class GraphSetup:
             current_clear = f"Msg Clear {analyst_type.capitalize()}"
 
             # Add conditional edges for current analyst
+            # 为当前分析师添加条件边
             workflow.add_conditional_edges(
                 current_analyst,
                 getattr(self.conditional_logic, f"should_continue_{analyst_type}"),
@@ -197,6 +205,7 @@ class GraphSetup:
             workflow.add_edge(current_tools, current_analyst)
 
             # Connect to next analyst or to Bull Researcher if this is the last analyst
+            # 如果是最后一位分析师，则连接到Bull Researcher
             if i < len(selected_analysts) - 1:
                 next_analyst = f"{selected_analysts[i+1].capitalize()} Analyst"
                 workflow.add_edge(current_clear, next_analyst)

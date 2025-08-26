@@ -12,13 +12,14 @@ config["llm_provider"] = "google"  # Use a different model
 config["backend_url"] = "https://generativelanguage.googleapis.com/v1"  # Use a different backend
 config["deep_think_llm"] = "gemini-2.0-flash"  # Use a different model
 config["quick_think_llm"] = "gemini-2.0-flash"  # Use a different model
-config["max_debate_rounds"] = 1  # Increase debate rounds
+config["max_debate_rounds"] = 1  # Increase debate rounds # 最大辩论轮次(影响分析速度)
 config["online_tools"] = True  # Increase debate rounds
 
 # Initialize with custom config
 ta = TradingAgentsGraph(debug=True, config=config)
 
 # forward propagate
+# 分析英伟达公司股票
 _, decision = ta.propagate("NVDA", "2024-05-10")
 print(decision)
 

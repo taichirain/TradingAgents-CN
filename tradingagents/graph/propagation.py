@@ -18,6 +18,7 @@ class Propagator:
 
     def __init__(self, max_recur_limit=100):
         """Initialize with configuration parameters."""
+        """使用配置参数进行初始化."""
         self.max_recur_limit = max_recur_limit
 
     def create_initial_state(
