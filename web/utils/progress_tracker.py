@@ -81,6 +81,7 @@ class SmartAnalysisProgressTracker:
         model_multiplier = {
             'dashscope': 1.0,  # 阿里百炼速度适中
             'deepseek': 0.7,   # DeepSeek较快
+            'deepseek': 0.6,   # DeepSeek较快
             'google': 1.3      # Google较慢
         }.get(self.llm_provider, 1.0)
 

@@ -121,7 +121,7 @@ def docker_install():
     # 提示配置API密钥
     print_colored("\n⚠️  重要提醒:", Colors.YELLOW)
     print_colored("请编辑.env文件，配置至少一个AI模型的API密钥", Colors.YELLOW)
-    print_colored("推荐配置DeepSeek或通义千问API密钥", Colors.YELLOW)
+    print_colored("推荐配置DeepSeek或Kimi或通义千问API密钥", Colors.YELLOW)
     
     input("\n按回车键继续...")
     
@@ -202,7 +202,7 @@ def local_install():
     # 提示配置API密钥
     print_colored("\n⚠️  重要提醒:", Colors.YELLOW)
     print_colored("请编辑.env文件，配置至少一个AI模型的API密钥", Colors.YELLOW)
-    print_colored("推荐配置DeepSeek或通义千问API密钥", Colors.YELLOW)
+    print_colored("推荐配置DeepSeek或Kimi或通义千问API密钥", Colors.YELLOW)
     
     input("\n按回车键继续...")
     

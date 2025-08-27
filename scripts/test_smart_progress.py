@@ -34,6 +34,12 @@ def test_progress_tracker():
             "llm_provider": "deepseek"
         },
         {
+            "name": "标准分析 - 3个分析师", 
+            "analysts": ["market", "fundamentals", "technical"],
+            "research_depth": 3,
+            "llm_provider": "kimi"
+        },
+        {
             "name": "深度分析 - 5个分析师",
             "analysts": ["market", "fundamentals", "technical", "sentiment", "risk"],
             "research_depth": 3,
@@ -105,6 +111,7 @@ def test_time_estimation():
         (["market", "fundamentals"], 2, "dashscope"),
         (["market", "fundamentals"], 3, "dashscope"),
         (["market", "fundamentals", "technical"], 3, "deepseek"),
+         (["market", "fundamentals", "technical"], 3, "kimi"),
         (["market", "fundamentals", "technical", "sentiment", "risk"], 3, "google"),
     ]
     

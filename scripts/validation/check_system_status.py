@@ -55,7 +55,8 @@ def check_system_status():
                 'FINNHUB_API_KEY': 'FinnHub',
                 'TUSHARE_TOKEN': 'Tushare',
                 'GOOGLE_API_KEY': 'Google AI',
-                'DEEPSEEK_API_KEY': 'DeepSeek'
+                'DEEPSEEK_API_KEY': 'DeepSeek',
+                'KIMI_API_KEY': 'Kimi',
             }
 
             for key, name in api_keys.items():

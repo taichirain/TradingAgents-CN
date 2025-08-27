@@ -190,6 +190,35 @@ class TradingAgentsGraph:
                 )
 
             logger.info(f"✅ [DeepSeek] 已启用token统计功能")
+        elif (self.config["llm_provider"].lower() == "kimi" or
+              "kimi" in self.config["llm_provider"].lower()):
+            # kimi v2配置 - 使用支持token统计的适配器
+            from tradingagents.llm_adapters.kimi_adapter import ChatKimi
+
+
+            kimi_api_key = os.getenv('KIMI_API_KEY')
+            if not kimi_api_key:
+                raise ValueError("使用Kimi需要设置KIMI_API_KEY环境变量")
+
+            kimi_base_url = os.getenv('KIMI_BASE_URL', 'https://api.moonshot.cn')
+
+            # 使用支持token统计的Kimi适配器
+            self.deep_thinking_llm = ChatKimi(
+                model=self.config["deep_think_llm"],
+                api_key=kimi_api_key,
+                base_url=kimi_base_url,
+                temperature=0.1,
+                max_tokens=2000
+            )
+            self.quick_thinking_llm = ChatKimi(
+                model=self.config["quick_think_llm"],
+                api_key=kimi_api_key,
+                base_url=kimi_base_url,
+                temperature=0.1,
+                max_tokens=2000
+                )
+
+            logger.info(f"✅ [Kimi] 已启用token统计功能")
         elif self.config["llm_provider"].lower() == "custom_openai":
             # 自定义OpenAI端点配置
             from tradingagents.llm_adapters.openai_compatible_base import create_openai_compatible_llm

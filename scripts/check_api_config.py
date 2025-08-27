@@ -71,6 +71,7 @@ def check_other_apis():
         'OPENAI_API_KEY': 'OpenAI API',
         'GOOGLE_API_KEY': 'Google AI API', 
         'DEEPSEEK_API_KEY': 'DeepSeek API',
+        'KIMI_API_KEY': 'Kimi API',
         'TUSHARE_TOKEN': 'Tushare数据源',
         'FINNHUB_API_KEY': 'FinnHub数据源'
     }

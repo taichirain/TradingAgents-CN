@@ -192,6 +192,29 @@ class ChatDeepSeekOpenAI(OpenAICompatibleBase):
         )
 
 
+class ChatKimiOpenAI(OpenAICompatibleBase):
+    """Kimi OpenAI兼容适配器"""
+    
+    def __init__(
+        self,
+        model: str = "kimi-chat",
+        api_key: Optional[str] = None,
+        temperature: float = 0.1,
+        max_tokens: Optional[int] = None,
+        **kwargs
+    ):
+        super().__init__(
+            provider_name="kimi",
+            model=model,
+            api_key_env_var="KIMI_API_KEY",
+            base_url="https://api.moonshot.cn",
+            api_key=api_key,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            **kwargs
+        )
+
+
 class ChatDashScopeOpenAIUnified(OpenAICompatibleBase):
     """阿里百炼 OpenAI兼容适配器（统一版本）"""
     
@@ -252,6 +275,18 @@ OPENAI_COMPATIBLE_PROVIDERS = {
         "models": {
             "deepseek-chat": {"context_length": 32768, "supports_function_calling": True},
             "deepseek-coder": {"context_length": 16384, "supports_function_calling": True}
+        }
+    },
+    "kimi": {
+        "adapter_class": ChatKimiOpenAI,
+        "base_url": "https://api.moonshot.cn",
+        "api_key_env": "KIMI_API_KEY",
+        "models": {
+            "moonshot-v1-8k": {"context_length": 8192, "supports_function_calling": True},
+            "moonshot-v1-32k": {"context_length": 32768, "supports_function_calling": True},
+            "moonshot-v1-128k": {"context_length": 131072, "supports_function_calling": True},
+            "kimi-k2-0711-preview": {"context_length": 131072, "supports_function_calling": True},
+            "kimi-k2-turbo-preview": {"context_length": 131072, "supports_function_calling": True}
         }
     },
     "dashscope": {

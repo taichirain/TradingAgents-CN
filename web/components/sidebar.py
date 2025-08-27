@@ -209,11 +209,12 @@ def render_sidebar():
         # LLM提供商选择
         llm_provider = st.selectbox(
             "LLM提供商",
-            options=["dashscope", "deepseek", "google", "openai", "openrouter", "siliconflow","custom_openai"],
-            index=["dashscope", "deepseek", "google", "openai", "openrouter","siliconflow", "custom_openai"].index(st.session_state.llm_provider) if st.session_state.llm_provider in ["siliconflow", "dashscope", "deepseek", "google", "openai", "openrouter", "custom_openai"] else 0,
+            options=["dashscope", "deepseek", "kimi", "google", "openai", "openrouter", "siliconflow","custom_openai"],
+            index=["dashscope", "deepseek", "kimi", "google", "openai", "openrouter","siliconflow", "custom_openai"].index(st.session_state.llm_provider) if st.session_state.llm_provider in ["siliconflow", "dashscope", "deepseek", "google", "openai", "openrouter", "custom_openai"] else 0,
             format_func=lambda x: {
                 "dashscope": "🇨🇳 阿里百炼",
                 "deepseek": "🚀 DeepSeek V3",
+                "kimi": "🌙 Kimi-v2",
                 "google": "🌟 Google AI",
                 "openai": "🤖 OpenAI",
                 "openrouter": "🌐 OpenRouter",
@@ -326,6 +327,34 @@ def render_sidebar():
                 logger.debug(f"🔄 [Persistence] DeepSeek模型变更: {st.session_state.llm_model} → {llm_model}")
             st.session_state.llm_model = llm_model
             logger.debug(f"💾 [Persistence] DeepSeek模型已保存: {llm_model}")
+
+            # 保存到持久化存储
+            save_model_selection(st.session_state.llm_provider, st.session_state.model_category, llm_model)
+
+        elif llm_provider == "kimi":
+            kimi_options = ["kimi-k2-0711-preview"]
+
+            # 获取当前选择的索引
+            current_index = 0
+            if st.session_state.llm_model in kimi_options:
+                current_index = kimi_options.index(st.session_state.llm_model)
+
+            llm_model = st.selectbox(
+                "选择DeepSeek模型",
+                options=kimi_options,
+                index=current_index,
+                format_func=lambda x: {
+                    "kimi-k2-0711-preview": "Kimi K2 0711 预览版 - 大量数据处理, 复杂推理"
+                }[x],
+                help="选择用于分析的Kimi模型",
+                key="kimi_model_select"
+            )
+
+            # 更新session state和持久化存储
+            if st.session_state.llm_model != llm_model:
+                logger.debug(f"🔄 [Persistence] Kimi模型变更: {st.session_state.llm_model} → {llm_model}")
+            st.session_state.llm_model = llm_model
+            logger.debug(f"💾 [Persistence] Kimi模型已保存: {llm_model}")
 
             # 保存到持久化存储
             save_model_selection(st.session_state.llm_provider, st.session_state.model_category, llm_model)
@@ -933,6 +962,8 @@ def render_sidebar():
                 return f"{key[:8]}...", "success"
             elif expected_format == "deepseek" and key.startswith("sk-") and len(key) >= 32:
                 return f"{key[:8]}...", "success"
+            elif expected_format == "kimi" and key.startswith("sk-") and len(key) >= 32:
+                return f"{key[:8]}...", "success"
             elif expected_format == "finnhub" and len(key) >= 20:
                 return f"{key[:8]}...", "success"
             elif expected_format == "tushare" and len(key) >= 32:
@@ -983,6 +1014,16 @@ def render_sidebar():
             st.warning(f"⚠️ DeepSeek: {status}")
         else:
             st.info("ℹ️ DeepSeek: 未配置")
+
+        # Kimi
+        kimi_key = os.getenv("KIMI_API_KEY")
+        status, level = validate_api_key(kimi_key, "kimi")
+        if level == "success":
+            st.success(f"✅ Kimi: {status}")
+        elif level == "warning":
+            st.warning(f"⚠️ Kimi: {status}")
+        else:
+            st.info("ℹ️ Kimi: 未配置")
 
         # Tushare
         tushare_key = os.getenv("TUSHARE_TOKEN")

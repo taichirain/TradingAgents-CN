@@ -100,7 +100,8 @@ class ConfigManager:
             "openai": "OPENAI_API_KEY",
             "google": "GOOGLE_API_KEY",
             "anthropic": "ANTHROPIC_API_KEY",
-            "deepseek": "DEEPSEEK_API_KEY"
+            "deepseek": "DEEPSEEK_API_KEY",
+            "kimi": "KIMI_API_KEY",
         }
 
         env_key = env_key_map.get(provider.lower())
@@ -226,7 +227,48 @@ class ConfigManager:
                     max_tokens=8000,
                     temperature=0.7,
                     enabled=False
-                )
+                ),
+                ModelConfig(
+                    provider="kimi",
+                    model_name="moonshot-v1-8k",
+                    api_key="",
+                    max_tokens=8000,
+                    temperature=0.7,
+                    enabled=False
+                ),
+                ModelConfig(
+                    provider="kimi",
+                    model_name="moonshot-v1-32k",
+                    api_key="",
+                    max_tokens=8000,
+                    temperature=0.7,
+                    enabled=False
+                ),
+                ModelConfig(
+                    provider="kimi",
+                    model_name="moonshot-v1-128k",
+                    api_key="",
+                    max_tokens=8000,
+                    temperature=0.7,
+                    enabled=False
+                ),
+                ModelConfig(
+                    provider="kimi",
+                    model_name="kimi-k2-0711-preview",
+                    api_key="",
+                    max_tokens=8000,
+                    temperature=0.7,
+                    enabled=False
+                ),
+                ModelConfig(
+                    provider="kimi",
+                    model_name="kimi-k2-turbo-preview",
+                    api_key="",
+                    max_tokens=8000,
+                    temperature=0.7,
+                    enabled=False
+                ),
+
             ]
             self.save_models(default_models)
         
@@ -241,6 +283,13 @@ class ConfigManager:
                 # DeepSeek定价 (人民币) - 2025年最新价格
                 PricingConfig("deepseek", "deepseek-chat", 0.0014, 0.0028, "CNY"),
                 PricingConfig("deepseek", "deepseek-coder", 0.0014, 0.0028, "CNY"),
+
+                # kimi定价 (人民币) - 2025年最新价格
+                PricingConfig("kimi", "moonshot-v1-8k", 0.002, 0.01, "CNY"),
+                PricingConfig("kimi", "moonshot-v1-32k", 0.005, 0.02, "CNY"),
+                PricingConfig("kimi", "moonshot-v1-128k", 0.01, 0.03, "CNY"),
+                PricingConfig("kimi", "kimi-k2-0711-preview", 0.001, 0.016, "CNY"),
+                PricingConfig("kimi", "kimi-k2-turbo-preview", 0.004, 0.064, "CNY"),
 
                 # OpenAI定价 (美元)
                 PricingConfig("openai", "gpt-3.5-turbo", 0.0015, 0.002, "USD"),

@@ -74,6 +74,7 @@ def setup_docker_env():
     logger.info(f"请编辑.env文件，配置以下API密钥（至少配置一个）：")
     logger.info(f"- TRADINGAGENTS_DEEPSEEK_API_KEY")
     logger.info(f"- TRADINGAGENTS_DASHSCOPE_API_KEY")
+    logger.info(f"- TRADINGAGENTS_KIMI_API_KEY")
     logger.info(f"- TRADINGAGENTS_TUSHARE_TOKEN")
     logger.info(f"- TRADINGAGENTS_FINNHUB_API_KEY")
     

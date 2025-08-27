@@ -22,7 +22,7 @@ if docker images | grep -q "tradingagents-cn"; then
         docker-compose up -d
     else
         echo "🔄 检测到代码变化，重新构建"
-        docker-compose up -d --build
+        docker compose up -d --build
     fi
 else
     echo "🏗️ 首次运行，构建镜像"
