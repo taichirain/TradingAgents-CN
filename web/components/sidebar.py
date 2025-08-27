@@ -217,7 +217,7 @@ def render_sidebar():
         # LLM提供商选择
         llm_provider = st.selectbox(
             "LLM提供商",
-            options=["dashscope", "deepseek", "kimi", "google", "openai", "openrouter", "siliconflow","custom_openai", "qianfan"],
+            options=["dashscope", "deepseek", "kimi", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"],
             index=["dashscope", "deepseek", "kimi", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"].index(st.session_state.llm_provider) if st.session_state.llm_provider in ["dashscope", "deepseek", "kimi", "google", "openai", "openrouter", "siliconflow", "custom_openai", "qianfan"] else 0,
             format_func=lambda x: {
                 "dashscope": "🇨🇳 阿里百炼",

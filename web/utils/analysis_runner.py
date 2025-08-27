@@ -105,7 +105,7 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
         analysis_date: 分析日期
         analysts: 分析师列表
         research_depth: 研究深度
-        llm_provider: LLM提供商 (dashscope/deepseek/google)
+        llm_provider: LLM提供商 (dashscope/deepseek/kimi/google)
         llm_model: 大模型名称
         progress_callback: 进度回调函数，用于更新UI状态
     """
@@ -253,6 +253,9 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             elif llm_provider == "deepseek":
                 config["quick_think_llm"] = "deepseek-chat"
                 config["deep_think_llm"] = "deepseek-chat"
+            elif llm_provider == "kimi":
+                config["quick_think_llm"] = "kimi-k2-0711-preview"
+                config["deep_think_llm"] = "kimi-k2-turbo-preview"
             elif llm_provider == "openai":
                 config["quick_think_llm"] = llm_model
                 config["deep_think_llm"] = llm_model
@@ -279,6 +282,9 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             elif llm_provider == "deepseek":
                 config["quick_think_llm"] = "deepseek-chat"
                 config["deep_think_llm"] = "deepseek-chat"
+            elif llm_provider == "kimi":
+                config["quick_think_llm"] = "kimi-k2-0711-preview"
+                config["deep_think_llm"] = "kimi-k2-turbo-preview"
         elif research_depth == 4:  # 4级 - 深度分析
             config["max_debate_rounds"] = 2
             config["max_risk_discuss_rounds"] = 2
@@ -290,6 +296,9 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             elif llm_provider == "deepseek":
                 config["quick_think_llm"] = "deepseek-chat"
                 config["deep_think_llm"] = "deepseek-chat"
+            elif llm_provider == "kimi":
+                config["quick_think_llm"] = "kimi-k2-0711-preview"
+                config["deep_think_llm"] = "kimi-k2-turbo-preview"
         else:  # 5级 - 全面分析
             config["max_debate_rounds"] = 3
             config["max_risk_discuss_rounds"] = 3
@@ -301,6 +310,9 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             elif llm_provider == "deepseek":
                 config["quick_think_llm"] = "deepseek-chat"
                 config["deep_think_llm"] = "deepseek-chat"
+            elif llm_provider == "kimi":
+                config["quick_think_llm"] = "kimi-k2-0711-preview"
+                config["deep_think_llm"] = "kimi-k2-turbo-preview"
 
         # 根据LLM提供商设置不同的配置
         if llm_provider == "dashscope":
@@ -323,6 +335,8 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             
             logger.info(f"🤖 [千帆] 快速模型: {config['quick_think_llm']}")
             logger.info(f"🤖 [千帆] 深度模型: {config['deep_think_llm']}")
+        elif llm_provider == "kimi":
+            config["backend_url"] = "https://api.moonshot.cn"
         elif llm_provider == "google":
             # Google AI不需要backend_url，使用默认的OpenAI格式
             config["backend_url"] = "https://api.openai.com/v1"
