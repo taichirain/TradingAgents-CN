@@ -319,10 +319,8 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             config["backend_url"] = "https://dashscope.aliyuncs.com/api/v1"
         elif llm_provider == "deepseek":
             config["backend_url"] = "https://api.deepseek.com"
-<<<<<<< HEAD
         elif llm_provider == "kimi":
             config["backend_url"] = "https://api.moonshot.cn"
-=======
         elif llm_provider == "qianfan":
             # 千帆（文心一言）配置
             config["backend_url"] = "https://aip.baidubce.com"
@@ -339,7 +337,6 @@ def run_stock_analysis(stock_symbol, analysis_date, analysts, research_depth, ll
             
             logger.info(f"🤖 [千帆] 快速模型: {config['quick_think_llm']}")
             logger.info(f"🤖 [千帆] 深度模型: {config['deep_think_llm']}")
->>>>>>> 011301e (feat: complete Qianfan integration with documentation updates and fixes)
         elif llm_provider == "google":
             # Google AI不需要backend_url，使用默认的OpenAI格式
             config["backend_url"] = "https://api.openai.com/v1"
