@@ -224,7 +224,11 @@ def create_fundamentals_analyst(llm, toolkit):
             fresh_llm = ChatDashScopeOpenAI(
                 model=llm.model_name,
                 temperature=llm.temperature,
-                max_tokens=getattr(llm, 'max_tokens', 2000)
+                max_tokens=getattr(llm, 'max_tokens', 2000),
+                # 开启联网搜索以获得最新数据
+                extra_body={
+                    "enable_search": True
+                }
             )
         else:
             fresh_llm = llm

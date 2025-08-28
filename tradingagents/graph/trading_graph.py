@@ -154,12 +154,21 @@ class TradingAgentsGraph:
             self.deep_thinking_llm = ChatDashScopeOpenAI(
                 model=self.config["deep_think_llm"],
                 temperature=0.1,
-                max_tokens=2000
+                max_tokens=2000,
+                # 开启联网搜索以获得最新数据
+                extra_body={
+                    "enable_search": True
+                }
+
             )
             self.quick_thinking_llm = ChatDashScopeOpenAI(
                 model=self.config["quick_think_llm"],
                 temperature=0.1,
-                max_tokens=2000
+                max_tokens=2000,
+                # 开启联网搜索以获得最新数据
+                extra_body={
+                    "enable_search": True
+                }
             )
         elif (self.config["llm_provider"].lower() == "deepseek" or
               "deepseek" in self.config["llm_provider"].lower()):
